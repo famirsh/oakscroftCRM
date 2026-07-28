@@ -22,16 +22,26 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "wacrm",
-    template: "%s — wacrm",
+    default: "Oakscroft CRM",
+    template: "%s — Oakscroft CRM",
   },
-  description: "Self-hostable CRM template for WhatsApp.",
+  description: "Customer Relationship Management Platform by Oakscroft",
   robots: {
     index: false,
     follow: false,
   },
   icons: {
-    icon: [{ url: "/icon" }],
+    // Served from public/branding — no app/icon.tsx required.
+    // sizes "any" because the source asset is a high-res PNG (not a true 32×32).
+    icon: [
+      {
+        url: "/branding/favicon-32x32.png",
+        sizes: "any",
+        type: "image/png",
+      },
+    ],
+    shortcut: "/branding/favicon-32x32.png",
+    apple: "/branding/favicon-32x32.png",
   },
   formatDetection: {
     email: false,
@@ -41,7 +51,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#020617",
+  themeColor: "#0F7B3B",
   colorScheme: "dark light",
 };
 

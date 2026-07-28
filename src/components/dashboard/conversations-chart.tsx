@@ -90,7 +90,7 @@ export function ConversationsChart({ series, loading, range, onRangeChange }: Co
 
       <footer className="flex items-center gap-4 border-t border-border px-5 py-3 text-xs text-muted-foreground">
         <LegendDot color="#3b82f6" label={t('incoming')} />
-        <LegendDot color="#7c3aed" label={t('outgoing')} />
+        <LegendDot color="#0F7B3B" label={t('outgoing')} />
       </footer>
     </section>
   )
@@ -243,11 +243,11 @@ function LineSvg({
           ) : null,
         )}
 
-        {/* Outgoing polyline (violet) */}
+        {/* Outgoing polyline (Oakscroft primary) */}
         <path
           d={outgoingPath}
           fill="none"
-          stroke="#7c3aed"
+          stroke="#0F7B3B"
           strokeWidth={2}
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -274,7 +274,7 @@ function LineSvg({
               strokeDasharray="3 3"
             />
             <circle cx={hoverX} cy={yFor(data[hover.idx].incoming)} r={3.5} fill="#3b82f6" />
-            <circle cx={hoverX} cy={yFor(data[hover.idx].outgoing)} r={3.5} fill="#7c3aed" />
+            <circle cx={hoverX} cy={yFor(data[hover.idx].outgoing)} r={3.5} fill="#0F7B3B" />
           </g>
         )}
       </svg>

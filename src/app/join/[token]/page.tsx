@@ -23,6 +23,7 @@
 // ============================================================
 
 import { useCallback, useEffect, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { toast } from 'sonner';
@@ -222,6 +223,14 @@ export default function JoinPage() {
     return (
       <Card className="w-full max-w-md border-border bg-card">
         <CardContent className="flex flex-col items-center gap-3 py-12">
+          <Image
+            src="/branding/oakscroft-logo.png"
+            alt="Oakscroft CRM"
+            width={180}
+            height={48}
+            className="h-10 w-auto object-contain"
+            priority
+          />
           <Loader2 className="size-6 animate-spin text-primary" />
           <p className="text-sm text-muted-foreground">Verifying invitation…</p>
         </CardContent>

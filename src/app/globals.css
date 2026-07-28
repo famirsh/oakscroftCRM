@@ -88,32 +88,33 @@
 
 :root,
 html[data-mode="dark"] {
-  --background: oklch(0.13 0.01 260);
+  /* Oakscroft dark surfaces — #111827 bg, #1F2937 cards */
+  --background: #111827;
   --foreground: oklch(0.985 0 0);
-  --card: oklch(0.18 0.01 260);
-  --card-2: oklch(0.205 0.01 260);
+  --card: #1f2937;
+  --card-2: #243041;
   --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.18 0.01 260);
+  --popover: #1f2937;
   --popover-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.22 0.01 260);
+  --secondary: #243041;
   --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.22 0.01 260);
-  --muted-foreground: oklch(0.65 0.01 260);
-  --accent: oklch(0.22 0.01 260);
+  --muted: #243041;
+  --muted-foreground: oklch(0.72 0.01 260);
+  --accent: #243041;
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.28 0.01 260);
-  --input: oklch(0.28 0.01 260);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
+  --border: #374151;
+  --input: #374151;
+  --chart-2: #1fa463;
+  --chart-3: #f5c542;
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
   --radius: 0.625rem;
-  --sidebar: oklch(0.16 0.01 260);
+  --sidebar: #0f172a;
   --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.22 0.01 260);
+  --sidebar-accent: #243041;
   --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.28 0.01 260);
+  --sidebar-border: #374151;
 }
 
 html[data-mode="light"] {
@@ -147,18 +148,21 @@ html[data-mode="light"] {
 
 /* ---- ACCENT: primary color ---- */
 
+/* Default accent id remains "violet" for localStorage compatibility;
+ * values are the Oakscroft premium green palette. */
 :root,
 html[data-theme="violet"] {
-  --primary: oklch(0.526 0.247 293);
-  --primary-foreground: oklch(0.985 0 0);
-  --primary-hover: oklch(0.6 0.22 293);
-  --primary-soft: oklch(0.526 0.247 293 / 0.12);
-  --primary-soft-2: oklch(0.526 0.247 293 / 0.2);
-  --ring: oklch(0.526 0.247 293);
-  --chart-1: oklch(0.526 0.247 293);
-  --sidebar-primary: oklch(0.526 0.247 293);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-ring: oklch(0.526 0.247 293);
+  --primary: #0f7b3b;
+  --primary-foreground: #ffffff;
+  --primary-hover: #15803d;
+  --primary-soft: color-mix(in srgb, #0f7b3b 12%, transparent);
+  --primary-soft-2: color-mix(in srgb, #0f7b3b 22%, transparent);
+  --ring: #0f7b3b;
+  --chart-1: #0f7b3b;
+  --chart-2: #1fa463;
+  --sidebar-primary: #0f7b3b;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-ring: #0f7b3b;
 }
 
 html[data-theme="emerald"] {
