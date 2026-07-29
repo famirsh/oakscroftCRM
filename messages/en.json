@@ -1569,11 +1569,9 @@
     },
     "subscription": {
       "title": "Subscription",
-      "description": "Plan summary for {appName}. Upgrade and renew are UI-only — no payment integration.",
       "currentPlan": "Current Plan",
       "perMonth": "/ month",
       "licenseActive": "Active",
-      "cosmeticNote": "This is a display-only plan card for the premium UI. There is no license enforcement or billing backend.",
       "upgrade": "Upgrade",
       "renew": "Renew",
       "upgradeToast": "Upgrade is coming soon — no payment integration yet.",

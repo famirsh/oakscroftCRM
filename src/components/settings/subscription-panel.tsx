@@ -4,7 +4,6 @@ import { ArrowUpRight, RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { APP_BRAND } from "@/config/app";
 import { SettingsPanelHead } from "./settings-panel-head";
 
 /**
@@ -16,10 +15,7 @@ export function SubscriptionPanel() {
 
   return (
     <div className="space-y-6">
-      <SettingsPanelHead
-        title={t("title")}
-        description={t("description", { appName: APP_BRAND.appName })}
-      />
+      <SettingsPanelHead title={t("title")} />
 
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
         <div className="border-b border-border bg-gradient-to-r from-primary/10 via-transparent to-transparent px-6 py-5">
@@ -43,10 +39,6 @@ export function SubscriptionPanel() {
               {t("licenseActive")}
             </span>
           </div>
-        </div>
-
-        <div className="px-6 py-5 text-sm leading-relaxed text-muted-foreground">
-          {t("cosmeticNote")}
         </div>
 
         <div className="flex flex-wrap gap-3 border-t border-border bg-muted/30 px-6 py-4">
