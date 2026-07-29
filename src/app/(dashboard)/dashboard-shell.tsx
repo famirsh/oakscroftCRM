@@ -11,9 +11,8 @@ import {
   CommandPalette,
   useCommandPalette,
 } from "@/components/layout/command-palette";
-import { ExpiryBanner } from "@/components/subscription/expiry-banner";
 import { PresenceHeartbeat } from "@/components/presence/presence-heartbeat";
-import { APP_CONFIG } from "@/config/app";
+import { APP_BRAND } from "@/config/app";
 
 // Auth-gated dashboard shell. Extracted from the layout so the layout
 // itself can stay a server component and export metadata (noindex) —
@@ -41,7 +40,7 @@ function DashboardShellInner({ children }: { children: React.ReactNode }) {
         <div className="flex flex-col items-center gap-4">
           <Image
             src="/branding/oakscroft-logo.png"
-            alt={APP_CONFIG.appName}
+            alt={APP_BRAND.appName}
             width={180}
             height={48}
             className="h-10 w-auto object-contain"
@@ -67,7 +66,6 @@ function DashboardShellInner({ children }: { children: React.ReactNode }) {
           onOpenSidebar={() => setSidebarOpen(true)}
           onOpenSearch={() => setCmdOpen(true)}
         />
-        <ExpiryBanner />
         {/* Thinner horizontal padding on mobile so cards have room to breathe. */}
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">{children}</main>
         <AppFooter />

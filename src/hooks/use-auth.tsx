@@ -122,108 +122,143 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // window they're in — see the type doc above.
   const [profileLoading, setProfileLoading] = useState(true);
 
-  // Tracks the user ID we've successfully initiated/completed fetching
-  // a profile for. This prevents redundant re-fetches and toggling
-  // profileLoading back to true on window focus events/token refresh.
+  // Tracks the user ID we've successfully loaded a profile for (or are
+  // currently loading). Prevents the classic Supabase double-fetch race:
+  // `getSession()` init + `onAuthStateChange(INITIAL_SESSION)` both fire
+  // on mount and used to each hit profiles + accounts.
   const lastFetchedUserIdRef = useRef<string | null>(null);
+  // In-flight promise so concurrent callers for the same userId share one
+  // network round-trip instead of racing two identical selects.
+  const inflightProfileRef = useRef<{
+    userId: string;
+    promise: Promise<void>;
+  } | null>(null);
 
   // Shared across init, auth-state-change listener, and the exposed
   // refreshProfile() callback. Reads the current session's user id and
   // pulls the matching profile row along with its account summary.
-  const fetchProfile = useCallback(async (userId: string) => {
-    const supabase = createClient();
-    setProfileLoading(true);
-    lastFetchedUserIdRef.current = userId;
-    try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select(
-          "id, full_name, email, avatar_url, role, beta_features, account_id, account_role",
-        )
-        .eq("user_id", userId)
-        .maybeSingle();
+  const fetchProfile = useCallback(
+    async (userId: string, opts?: { force?: boolean }) => {
+      const force = opts?.force === true;
 
-      if (error) {
-        console.error("[AuthProvider] fetchProfile error:", {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code,
-        });
-        lastFetchedUserIdRef.current = null;
+      // Coalesce concurrent requests for the same user (init + auth event).
+      if (
+        !force &&
+        inflightProfileRef.current?.userId === userId
+      ) {
+        return inflightProfileRef.current.promise;
+      }
+      // Already loaded this user — skip token-refresh / re-init noise.
+      // `force` (refreshProfile) bypasses so settings saves still re-pull.
+      if (!force && lastFetchedUserIdRef.current === userId) {
         return;
       }
 
-      if (data) {
-        // Load the account with a plain lookup by id instead of an
-        // embedded FK join. The embed (`account:accounts!inner(...)`)
-        // forces PostgREST to resolve the profiles.account_id →
-        // accounts.id relationship from its schema cache; a stale cache
-        // (common right after a migration adds the FK) makes it fail
-        // hard with PGRST200 and blanks the whole profile — the user
-        // then loses account context everywhere (issue #294). A point
-        // lookup by id needs no relationship inference, so the profile
-        // (with account_id / account_role) still resolves even if the
-        // account name lookup itself can't.
-        let accountRow: AccountSummary | null = null;
-        if (data.account_id) {
-          const { data: account, error: accountErr } = await supabase
-            .from("accounts")
-            // default_currency added in migration 021; narrowed to the
-            // USD fallback below for older schemas where it reads null.
-            .select("id, name, default_currency")
-            .eq("id", data.account_id)
+      const run = (async () => {
+        const supabase = createClient();
+        setProfileLoading(true);
+        lastFetchedUserIdRef.current = userId;
+        try {
+          const { data, error } = await supabase
+            .from("profiles")
+            .select(
+              "id, full_name, email, avatar_url, role, beta_features, account_id, account_role",
+            )
+            .eq("user_id", userId)
             .maybeSingle();
-          if (accountErr) {
-            console.error("[AuthProvider] fetchAccount error:", {
-              message: accountErr.message,
-              details: accountErr.details,
-              hint: accountErr.hint,
-              code: accountErr.code,
+
+          if (error) {
+            console.error("[AuthProvider] fetchProfile error:", {
+              message: error.message,
+              details: error.details,
+              hint: error.hint,
+              code: error.code,
             });
-          } else if (account) {
-            accountRow = {
-              id: account.id,
-              name: account.name,
-              default_currency: account.default_currency ?? DEFAULT_CURRENCY,
-            };
+            lastFetchedUserIdRef.current = null;
+            return;
+          }
+
+          if (data) {
+            // Load the account with a plain lookup by id instead of an
+            // embedded FK join. The embed (`account:accounts!inner(...)`)
+            // forces PostgREST to resolve the profiles.account_id →
+            // accounts.id relationship from its schema cache; a stale cache
+            // (common right after a migration adds the FK) makes it fail
+            // hard with PGRST200 and blanks the whole profile — the user
+            // then loses account context everywhere (issue #294). A point
+            // lookup by id needs no relationship inference, so the profile
+            // (with account_id / account_role) still resolves even if the
+            // account name lookup itself can't.
+            let accountRow: AccountSummary | null = null;
+            if (data.account_id) {
+              const { data: account, error: accountErr } = await supabase
+                .from("accounts")
+                // default_currency added in migration 021; narrowed to the
+                // DEFAULT_CURRENCY fallback below for older schemas where
+                // it reads null.
+                .select("id, name, default_currency")
+                .eq("id", data.account_id)
+                .maybeSingle();
+              if (accountErr) {
+                console.error("[AuthProvider] fetchAccount error:", {
+                  message: accountErr.message,
+                  details: accountErr.details,
+                  hint: accountErr.hint,
+                  code: accountErr.code,
+                });
+              } else if (account) {
+                accountRow = {
+                  id: account.id,
+                  name: account.name,
+                  default_currency:
+                    account.default_currency ?? DEFAULT_CURRENCY,
+                };
+              }
+            }
+
+            // Narrow the DB enum into our AccountRole union. The DB
+            // constraint should make this unconditional, but a future
+            // migration that broadens the enum without updating TS would
+            // otherwise crash here — fall back to null and let UI gates
+            // treat the caller as least-privileged.
+            const accountRole = isAccountRole(data.account_role)
+              ? data.account_role
+              : null;
+
+            setProfile({
+              id: data.id,
+              full_name: data.full_name,
+              email: data.email,
+              avatar_url: data.avatar_url,
+              role: data.role,
+              // `beta_features` is `NOT NULL DEFAULT ARRAY[]` in the DB, but
+              // narrow defensively in case the column hasn't been migrated yet
+              // (older deployments running 011 lazily) — `null` reads as no
+              // opt-ins, which is the safe default for any future beta gate.
+              beta_features: data.beta_features ?? [],
+              account_id: data.account_id ?? null,
+              account_role: accountRole,
+            });
+            setAccount(accountRow);
+          } else {
+            lastFetchedUserIdRef.current = null;
+          }
+        } catch (err) {
+          console.error("[AuthProvider] fetchProfile threw:", err);
+          lastFetchedUserIdRef.current = null;
+        } finally {
+          setProfileLoading(false);
+          if (inflightProfileRef.current?.userId === userId) {
+            inflightProfileRef.current = null;
           }
         }
+      })();
 
-        // Narrow the DB enum into our AccountRole union. The DB
-        // constraint should make this unconditional, but a future
-        // migration that broadens the enum without updating TS would
-        // otherwise crash here — fall back to null and let UI gates
-        // treat the caller as least-privileged.
-        const accountRole = isAccountRole(data.account_role)
-          ? data.account_role
-          : null;
-
-        setProfile({
-          id: data.id,
-          full_name: data.full_name,
-          email: data.email,
-          avatar_url: data.avatar_url,
-          role: data.role,
-          // `beta_features` is `NOT NULL DEFAULT ARRAY[]` in the DB, but
-          // narrow defensively in case the column hasn't been migrated yet
-          // (older deployments running 011 lazily) — `null` reads as no
-          // opt-ins, which is the safe default for any future beta gate.
-          beta_features: data.beta_features ?? [],
-          account_id: data.account_id ?? null,
-          account_role: accountRole,
-        });
-        setAccount(accountRow);
-      } else {
-        lastFetchedUserIdRef.current = null;
-      }
-    } catch (err) {
-      console.error("[AuthProvider] fetchProfile threw:", err);
-      lastFetchedUserIdRef.current = null;
-    } finally {
-      setProfileLoading(false);
-    }
-  }, []);
+      inflightProfileRef.current = { userId, promise: run };
+      return run;
+    },
+    [],
+  );
 
   useEffect(() => {
     const supabase = createClient();
@@ -255,7 +290,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // (header, sidebar) can render from the user object alone,
           // profile enriches async. Callers that need to branch on
           // profile data gate on `profileLoading` instead.
-          fetchProfile(currentUser.id);
+          // Deduped against onAuthStateChange via fetchProfile's
+          // in-flight + lastFetched guards.
+          void fetchProfile(currentUser.id);
         } else {
           // No user → no profile to load. Flip profileLoading off so
           // pages that gate on it don't wait forever on the logged-out
@@ -270,7 +307,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     };
 
-    init();
+    void init();
 
     const {
       data: { subscription },
@@ -280,11 +317,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(currentUser);
 
       if (currentUser) {
-        if (currentUser.id !== lastFetchedUserIdRef.current) {
-          fetchProfile(currentUser.id);
-        }
+        // Same user already loaded / in-flight → no second profiles+accounts hit.
+        void fetchProfile(currentUser.id);
       } else {
         lastFetchedUserIdRef.current = null;
+        inflightProfileRef.current = null;
         setProfile(null);
         setAccount(null);
         setProfileLoading(false);
@@ -306,12 +343,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setProfile(null);
     setAccount(null);
+    lastFetchedUserIdRef.current = null;
+    inflightProfileRef.current = null;
     window.location.href = "/login";
   }, []);
 
   const refreshProfile = useCallback(async () => {
     if (!user?.id) return;
-    await fetchProfile(user.id);
+    // Force bypasses the "already loaded" short-circuit so a settings
+    // save always re-pulls the latest row.
+    await fetchProfile(user.id, { force: true });
   }, [user?.id, fetchProfile]);
 
   // Derive the role booleans once per profile change rather than on

@@ -147,21 +147,14 @@
       "currentPlan": "현재 플랜",
       "statusActive": "활성",
       "perMonth": "/ 월",
-      "installed": "설치일",
-      "renewal": "갱신일",
-      "daysRemaining": "{count}일 남음",
-      "manage": "플랜 관리"
+      "blurb": "인박스, 연락처, 파이프라인, 브로드캐스트, 자동화에 모두 접근할 수 있습니다.",
+      "manage": "플랜 보기"
     },
     "about": {
       "eyebrow": "제품",
       "title": "{appName} 소개",
       "description": "Oakscroft CRM은 WhatsApp 대화, 고객, 파이프라인, 브로드캐스트, 자동화를 하나의 현대적인 플랫폼에서 관리할 수 있게 돕습니다.",
       "version": "버전",
-      "currentVersion": "현재 버전",
-      "currentPlan": "현재 플랜",
-      "licenseStatus": "라이선스 상태",
-      "installedOn": "설치일",
-      "lastUpdated": "최종 업데이트",
       "support": "지원",
       "website": "웹사이트"
     },
@@ -1606,15 +1599,11 @@
     },
     "subscription": {
       "title": "구독",
-      "description": "{appName}의 현재 플랜, 결제 주기, 라이선스 상태입니다. 업그레이드와 갱신은 현재 UI만 제공됩니다.",
+      "description": "{appName} 플랜 요약입니다. 업그레이드와 갱신은 UI만 제공되며 결제 연동은 없습니다.",
       "currentPlan": "현재 플랜",
       "perMonth": "/ 월",
-      "licenseActive": "라이선스 활성",
-      "installed": "설치일",
-      "renewal": "갱신일",
-      "remaining": "남은 일수",
-      "daysRemaining": "{count}일 남음",
-      "ofCycle": "30일 주기 중",
+      "licenseActive": "활성",
+      "cosmeticNote": "프리미엄 UI용 표시 전용 플랜 카드입니다. 라이선스 강제나 결제 백엔드는 없습니다.",
       "upgrade": "업그레이드",
       "renew": "갱신",
       "upgradeToast": "업그레이드는 곧 제공됩니다 — 결제 연동은 아직 없습니다.",
@@ -1624,7 +1613,6 @@
       "title": "시스템 정보",
       "description": "이 설치의 런타임 및 환경 정보입니다. 지원 및 진단에 유용합니다.",
       "currentVersion": "현재 버전",
-      "nodeVersion": "Node 버전",
       "runtime": "런타임",
       "environment": "환경",
       "database": "데이터베이스",
@@ -1632,7 +1620,7 @@
       "timezone": "시간대",
       "locale": "로케일",
       "appName": "애플리케이션",
-      "note": "Node 버전은 호스트 런타임(또는 NEXT_PUBLIC_NODE_VERSION)에서 읽습니다. 데이터베이스와 스토리지 라벨은 애플리케이션 설정에서 가져옵니다."
+      "note": "시간대와 로케일은 페이지 로드 후 브라우저에서 읽습니다."
     },
     "profile": {
       "title": "내 프로필",

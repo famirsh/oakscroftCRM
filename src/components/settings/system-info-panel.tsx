@@ -10,86 +10,41 @@ import {
   Server,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { APP_CONFIG } from "@/config/app";
+import { APP_BRAND } from "@/config/app";
 import { SettingsPanelHead } from "./settings-panel-head";
 
-interface RuntimeFacts {
+interface ClientFacts {
   timezone: string;
   environment: string;
   language: string;
-  /** Approximate storage estimate when the browser supports it. */
-  storageLabel: string;
-  userAgent: string;
 }
 
 /**
- * Settings → System Information.
- * Mix of APP_CONFIG constants and live browser/runtime facts.
- * No backend calls.
+ * Settings → System information.
+ * Timezone / locale / environment are read after mount only.
  */
 export function SystemInfoPanel() {
   const t = useTranslations("Settings.system");
-  const [facts, setFacts] = useState<RuntimeFacts | null>(null);
+  const [facts, setFacts] = useState<ClientFacts | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
-
-    const base: RuntimeFacts = {
+    setFacts({
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "—",
       environment: process.env.NODE_ENV ?? "development",
-      language:
-        typeof navigator !== "undefined" ? navigator.language : "—",
-      storageLabel: APP_CONFIG.system.storage,
-      userAgent:
-        typeof navigator !== "undefined" ? navigator.userAgent : "—",
-    };
-
-    setFacts(base);
-
-    // Optional Storage API estimate — purely informational.
-    void (async () => {
-      try {
-        if (navigator.storage?.estimate) {
-          const est = await navigator.storage.estimate();
-          if (cancelled || !est.quota) return;
-          const used = est.usage ?? 0;
-          const quota = est.quota;
-          const usedMb = (used / (1024 * 1024)).toFixed(1);
-          const quotaMb = (quota / (1024 * 1024)).toFixed(0);
-          setFacts((prev) =>
-            prev
-              ? {
-                  ...prev,
-                  storageLabel: `${APP_CONFIG.system.storage} · ~${usedMb} / ${quotaMb} MB local`,
-                }
-              : prev,
-          );
-        }
-      } catch {
-        // ignore
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
+      language: typeof navigator !== "undefined" ? navigator.language : "—",
+    });
   }, []);
 
-  const rows = [
+  const rows: { icon: typeof Package; label: string; value: string }[] = [
     {
       icon: Package,
       label: t("currentVersion"),
-      value: APP_CONFIG.version,
-    },
-    {
-      icon: Server,
-      label: t("nodeVersion"),
-      value: APP_CONFIG.system.nodeVersion,
+      value: APP_BRAND.version,
     },
     {
       icon: Server,
       label: t("runtime"),
-      value: APP_CONFIG.system.runtime,
+      value: "Next.js",
     },
     {
       icon: Monitor,
@@ -99,12 +54,12 @@ export function SystemInfoPanel() {
     {
       icon: Database,
       label: t("database"),
-      value: APP_CONFIG.system.database,
+      value: "Supabase (PostgreSQL)",
     },
     {
       icon: HardDrive,
       label: t("storage"),
-      value: facts?.storageLabel ?? APP_CONFIG.system.storage,
+      value: "Supabase Storage",
     },
     {
       icon: Clock,
@@ -119,7 +74,7 @@ export function SystemInfoPanel() {
     {
       icon: Package,
       label: t("appName"),
-      value: APP_CONFIG.appName,
+      value: APP_BRAND.appName,
     },
   ];
 
@@ -143,7 +98,10 @@ export function SystemInfoPanel() {
                   <p className="text-xs font-medium text-muted-foreground">
                     {row.label}
                   </p>
-                  <p className="truncate text-sm font-medium text-foreground tabular-nums">
+                  <p
+                    className="truncate text-sm font-medium text-foreground tabular-nums"
+                    suppressHydrationWarning
+                  >
                     {row.value}
                   </p>
                 </div>
@@ -153,9 +111,7 @@ export function SystemInfoPanel() {
         </ul>
       </div>
 
-      <p className="text-xs leading-relaxed text-muted-foreground">
-        {t("note")}
-      </p>
+      <p className="text-xs leading-relaxed text-muted-foreground">{t("note")}</p>
     </div>
   );
 }

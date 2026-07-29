@@ -147,21 +147,14 @@
       "currentPlan": "Current Plan",
       "statusActive": "Active",
       "perMonth": "/ month",
-      "installed": "Installed",
-      "renewal": "Renewal",
-      "daysRemaining": "{count} {count, plural, =1 {Day} other {Days}} Remaining",
-      "manage": "Manage plan"
+      "blurb": "Full access to inbox, contacts, pipelines, broadcasts, and automations.",
+      "manage": "View plan"
     },
     "about": {
       "eyebrow": "Product",
       "title": "About {appName}",
       "description": "Oakscroft CRM helps businesses manage WhatsApp conversations, customers, pipelines, broadcasts and automations from one modern platform.",
       "version": "Version",
-      "currentVersion": "Current Version",
-      "currentPlan": "Current Plan",
-      "licenseStatus": "License Status",
-      "installedOn": "Installed On",
-      "lastUpdated": "Last Updated",
       "support": "Support",
       "website": "Website"
     },
@@ -1607,15 +1600,11 @@
     },
     "subscription": {
       "title": "Subscription",
-      "description": "Your current plan, billing cycle, and license status for {appName}. Upgrade and renew actions are UI-only for now.",
+      "description": "Plan summary for {appName}. Upgrade and renew are UI-only — no payment integration.",
       "currentPlan": "Current Plan",
       "perMonth": "/ month",
-      "licenseActive": "License Active",
-      "installed": "Installed Date",
-      "renewal": "Renewal Date",
-      "remaining": "Remaining Days",
-      "daysRemaining": "{count} {count, plural, =1 {Day} other {Days}} Remaining",
-      "ofCycle": "of 30-day cycle",
+      "licenseActive": "Active",
+      "cosmeticNote": "This is a display-only plan card for the premium UI. There is no license enforcement or billing backend.",
       "upgrade": "Upgrade",
       "renew": "Renew",
       "upgradeToast": "Upgrade is coming soon — no payment integration yet.",
@@ -1625,7 +1614,6 @@
       "title": "System information",
       "description": "Runtime and environment details for this installation. Useful for support and diagnostics.",
       "currentVersion": "Current Version",
-      "nodeVersion": "Node Version",
       "runtime": "Runtime",
       "environment": "Environment",
       "database": "Database",
@@ -1633,7 +1621,7 @@
       "timezone": "Timezone",
       "locale": "Locale",
       "appName": "Application",
-      "note": "Node version is read from the host runtime (or NEXT_PUBLIC_NODE_VERSION). Database and storage labels come from application configuration."
+      "note": "Timezone and locale are read from your browser after the page loads."
     },
     "profile": {
       "title": "Your profile",
