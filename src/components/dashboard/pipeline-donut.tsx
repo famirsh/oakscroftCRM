@@ -18,10 +18,10 @@ import { useTranslations } from 'next-intl'
 export function PipelineDonut({ data, loading, currency }: PipelineDonutProps) {
   const t = useTranslations('Dashboard.pipelineDonut')
   return (
-    <section className="flex h-full flex-col rounded-xl border border-border bg-card">
+    <section className="flex h-full flex-col rounded-2xl border border-border bg-card shadow-sm transition-shadow duration-200 hover:shadow-md hover:shadow-black/5">
       <header className="border-b border-border px-5 py-4">
-        <h2 className="text-sm font-semibold text-foreground">{t('title')}</h2>
-        <p className="mt-0.5 text-xs text-muted-foreground">
+        <h2 className="text-sm font-semibold tracking-tight text-foreground">{t('title')}</h2>
+        <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
           {t('description')}
         </p>
       </header>

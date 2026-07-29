@@ -65,6 +65,20 @@ const SECURITY_HEADERS = [
 
 const nextConfig: NextConfig = {
   /**
+   * Browsers still probe `/favicon.ico` even when `<link rel="icon">`
+   * points elsewhere. Map that legacy path to the Oakscroft branding
+   * asset so the tab icon never 404s.
+   */
+  async rewrites() {
+    return [
+      {
+        source: "/favicon.ico",
+        destination: "/branding/favicon-32x32.png",
+      },
+    ];
+  },
+
+  /**
    * Cross-origin dev access (Next.js 16).
    *
    * Next 16 blocks requests to dev-only resources (`/_next/*` internals,

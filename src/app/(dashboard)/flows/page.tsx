@@ -37,9 +37,9 @@ import { cn } from "@/lib/utils";
 /**
  * Flows list page.
  *
- * Open to every authenticated user. Flows is in soft-GA — the "Beta"
- * chip in the header is the only remaining signal that the surface
- * is new. The previous per-account beta gate was removed in PR #134.
+ * Open to every authenticated user. Flows is in soft-GA; the previous
+ * per-account beta gate was removed in PR #134. The UI no longer shows
+ * a Beta badge — production surfaces should not display beta chips.
  */
 
 interface FlowRow {
@@ -203,13 +203,10 @@ export default function FlowsPage() {
     <div className="space-y-6 p-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-semibold text-foreground">{t("title")}</h1>
-            <span className="inline-flex items-center rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-300">
-              {t("beta")}
-            </span>
-          </div>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+            {t("title")}
+          </h1>
+          <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
             {t("description")}
           </p>
         </div>

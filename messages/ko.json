@@ -1,9 +1,9 @@
 {
   "LoginPage": {
     "titleAccept": "로그인하여 수락하기",
-    "titleWelcome": "다시 오신 것을 환영합니다",
+    "titleWelcome": "Oakscroft CRM에 오신 것을 환영합니다",
     "descAccept": "로그인하시면 초대 페이지로 이동합니다.",
-    "descWelcome": "계정에 로그인하세요",
+    "descWelcome": "Customer Relationship & WhatsApp Management Platform",
     "emailLabel": "이메일",
     "emailPlaceholder": "you@example.com",
     "passwordLabel": "비밀번호",
@@ -15,7 +15,8 @@
     "createAccount": "계정 만들기"
   },
   "Sidebar": {
-    "title": "WhatsApp용 CRM 템플릿",
+    "title": "Oakscroft CRM",
+    "footer": "© Oakscroft CRM",
     "dashboard": "대시보드",
     "inbox": "인박스",
     "notifications": "알림",
@@ -44,26 +45,95 @@
     "dashboard": "대시보드",
     "inbox": "인박스",
     "notifications": "알림",
+    "notificationsUnread": "읽지 않은 알림 {count}건",
     "contacts": "연락처",
     "pipelines": "파이프라인",
     "broadcasts": "브로드캐스트",
     "automations": "자동화",
+    "flows": "플로우",
+    "agents": "AI 에이전트",
     "settings": "설정",
+    "workspace": "워크스페이스",
     "openMenu": "메뉴 열기",
     "openAccountMenu": "계정 메뉴 열기",
     "defaultUser": "사용자",
     "defaultAvatar": "아바타",
     "menuProfile": "프로필",
+    "menuSubscription": "구독",
     "menuSettings": "설정",
-    "menuSignOut": "로그아웃"
+    "menuSignOut": "로그아웃",
+    "searchPlaceholder": "검색…"
   },
   "ModeToggle": {
     "switchMode": "{mode} 모드로 전환"
+  },
+  "AppFooter": {
+    "copyright": "© {year} {company}",
+    "poweredBy": "{company} 제공",
+    "navLabel": "푸터",
+    "privacy": "개인정보",
+    "terms": "이용약관",
+    "documentation": "문서"
+  },
+  "CommandPalette": {
+    "placeholder": "페이지 및 설정 검색…",
+    "results": "검색 결과",
+    "empty": "결과가 없습니다.",
+    "hintNav": "↑↓ 이동",
+    "hintOpen": "↵ 열기",
+    "groupNavigate": "이동",
+    "groupSettings": "설정",
+    "dashboard": "대시보드",
+    "inbox": "인박스",
+    "notifications": "알림",
+    "contacts": "연락처",
+    "pipelines": "파이프라인",
+    "broadcasts": "브로드캐스트",
+    "automations": "자동화",
+    "flows": "플로우",
+    "agents": "AI 에이전트",
+    "settings": "설정",
+    "subscription": "구독",
+    "systemInfo": "시스템 정보"
+  },
+  "License": {
+    "status": {
+      "active": "활성 라이선스",
+      "trial": "체험 라이선스",
+      "suspended": "정지된 라이선스",
+      "expired": "만료된 라이선스"
+    }
+  },
+  "PlanWidget": {
+    "currentPlan": "현재 플랜",
+    "perMonth": "/ 월",
+    "installed": "설치일",
+    "renewal": "갱신일",
+    "remaining": "남은 일수",
+    "billingCycle": "결제 주기",
+    "cycleNumber": "주기 {number} · {days}일",
+    "daysRemaining": "{count}일 남음",
+    "ofCycle": "{days}일 주기 중",
+    "manage": "플랜 관리",
+    "upgrade": "업그레이드",
+    "renew": "갱신",
+    "upgradeToast": "업그레이드는 곧 제공됩니다 — 결제 연동은 아직 없습니다.",
+    "renewToast": "갱신은 곧 제공됩니다 — 결제 연동은 아직 없습니다."
+  },
+  "ExpiryBanner": {
+    "expiresIn": "{plan} 플랜이 {count}일 후 만료됩니다.",
+    "expired": "{plan} 플랜이 만료되었습니다.",
+    "suspended": "{plan} 라이선스가 정지되었습니다.",
+    "renewNow": "지금 갱신하기",
+    "dismiss": "닫기"
   },
   "Dashboard": {
     "page": {
       "title": "대시보드",
       "description": "대화, 연락처, 딜, 브로드캐스트, 자동화 전반의 실시간 분석입니다.",
+      "welcome": "다시 오신 것을 환영합니다, {name}님.",
+      "welcomeSub": "오늘의 현황입니다.",
+      "defaultName": "고객",
       "activeConversations": "진행 중인 대화",
       "newContactsToday": "오늘의 신규 연락처",
       "openDealsValue": "진행 중인 딜 금액",
@@ -72,6 +142,28 @@
       "vsYesterday": "어제 대비",
       "openDeals": "진행 중인 딜 {count}건",
       "noChange": "변동 없음 {suffix}"
+    },
+    "subscription": {
+      "currentPlan": "현재 플랜",
+      "statusActive": "활성",
+      "perMonth": "/ 월",
+      "installed": "설치일",
+      "renewal": "갱신일",
+      "daysRemaining": "{count}일 남음",
+      "manage": "플랜 관리"
+    },
+    "about": {
+      "eyebrow": "제품",
+      "title": "{appName} 소개",
+      "description": "Oakscroft CRM은 WhatsApp 대화, 고객, 파이프라인, 브로드캐스트, 자동화를 하나의 현대적인 플랫폼에서 관리할 수 있게 돕습니다.",
+      "version": "버전",
+      "currentVersion": "현재 버전",
+      "currentPlan": "현재 플랜",
+      "licenseStatus": "라이선스 상태",
+      "installedOn": "설치일",
+      "lastUpdated": "최종 업데이트",
+      "support": "지원",
+      "website": "웹사이트"
     },
     "quickActions": {
       "newContact": "새 연락처",
@@ -95,8 +187,8 @@
       "title": "기간별 대화 추이",
       "description": "방향별 일일 메시지 볼륨",
       "days": "{count}일",
-      "noActivity": "이 기간에는 메시지 활동이 없습니다",
-      "noActivityHint": "메시지를 주고받으면 이 차트가 채워지기 시작합니다.",
+      "noActivity": "아직 대화가 없습니다",
+      "noActivityHint": "채팅을 시작하면 분석이 표시됩니다.",
       "incoming": "수신",
       "outgoing": "발신",
       "tooltipIncoming": "수신 {count}건",
@@ -1274,7 +1366,7 @@
       "labelTooLong": "라벨은 {max}자 이하여야 합니다",
       "copied": "초대 링크가 복사되었습니다",
       "clipboardBlocked": "클립보드 접근이 차단되었습니다 — 링크를 직접 복사하세요",
-      "whatsappMessage": "이 링크(유효 기간 {expiresInDays}일)로 wacrm의 {accountName}에 참여하세요: {url}"
+      "whatsappMessage": "이 링크(유효 기간 {expiresInDays}일)로 Oakscroft CRM의 {accountName}에 참여하세요: {url}"
     },
     "tagsAndFields": {
       "title": "필드 & 태그",
@@ -1394,8 +1486,8 @@
       "submitApproval": "승인 요청",
 
       "deleteDialogTitle": "템플릿을 삭제하시겠습니까?",
-      "deleteMetaDesc": "\"{name}\"이(가) Meta와 wacrm에서 삭제됩니다. 이 템플릿을 사용하는 활성 브로드캐스트는 다음 전송부터 실패하기 시작합니다. 되돌릴 수 없습니다.",
-      "deleteLocalDesc": "\"{name}\"이(가) wacrm에서 삭제됩니다. Meta에 제출된 적이 없으므로 별도의 원격 정리가 필요하지 않습니다.",
+      "deleteMetaDesc": "\"{name}\"이(가) Meta와 Oakscroft CRM에서 삭제됩니다. 이 템플릿을 사용하는 활성 브로드캐스트는 다음 전송부터 실패하기 시작합니다. 되돌릴 수 없습니다.",
+      "deleteLocalDesc": "\"{name}\"이(가) Oakscroft CRM에서 삭제됩니다. Meta에 제출된 적이 없으므로 별도의 원격 정리가 필요하지 않습니다.",
       "deleting": "삭제 중…",
       "delete": "삭제",
 
@@ -1437,7 +1529,7 @@
       "notConnected": "연결되지 않음",
       "connectedDesc": "액세스 토큰으로 Meta 인증이 완료되었습니다. 웹훅이 실제로 연결되었는지는 아래 등록 상태를 확인하세요.",
       "notConnectedDesc": "아래에서 Meta API 자격 증명을 설정해 WhatsApp 비즈니스 계정을 연결하세요.",
-      "registered": "등록됨 — Meta가 wacrm으로 이벤트를 전달합니다",
+      "registered": "등록됨 — Meta가 Oakscroft CRM으로 이벤트를 전달합니다",
       "notRegistered": "등록되지 않음 — Meta가 이벤트를 전달하지 않습니다",
       "verifyWithMeta": "Meta로 확인",
       "subscribedSince": "{date}부터 구독 중입니다. 이벤트가 더 이상 도착하지 않으면 Meta로 확인을 클릭하세요.",
@@ -1461,7 +1553,7 @@
       "twoStepPin": "2단계 인증 PIN",
       "optional": "(선택)",
       "pinPlaceholder": "Meta WhatsApp 관리자에서 발급받은 6자리 PIN",
-      "pinHint": "프로덕션 번호의 수신 메시지를 연결하려면 필요합니다. Meta 비즈니스 관리자 → WhatsApp 계정 → 전화번호 → 2단계 인증에서 설정한 뒤 여기에 붙여넣으면 wacrm이 해당 번호를 구독할 수 있습니다 — 그렇지 않으면 Meta는 마지막으로 이 번호를 등록한 앱으로 수신 이벤트를 보냅니다(공유 WABA 하의 두 번째 번호에서 흔히 발생하는 증상입니다). Meta 테스트 번호는 PIN이 없고 이미 등록되어 있으므로 이 필드를 비워두세요. 비워두면 기존 등록도 그대로 유지됩니다.",
+      "pinHint": "프로덕션 번호의 수신 메시지를 연결하려면 필요합니다. Meta 비즈니스 관리자 → WhatsApp 계정 → 전화번호 → 2단계 인증에서 설정한 뒤 여기에 붙여넣으면 Oakscroft CRM이 해당 번호를 구독할 수 있습니다 — 그렇지 않으면 Meta는 마지막으로 이 번호를 등록한 앱으로 수신 이벤트를 보냅니다(공유 WABA 하의 두 번째 번호에서 흔히 발생하는 증상입니다). Meta 테스트 번호는 PIN이 없고 이미 등록되어 있으므로 이 필드를 비워두세요. 비워두면 기존 등록도 그대로 유지됩니다.",
       "webhookTitle": "웹훅 설정",
       "webhookDesc": "Meta 앱 대시보드의 웹훅 콜백으로 이 URL을 사용하세요.",
       "webhookUrl": "웹훅 콜백 URL",
@@ -1498,8 +1590,11 @@
       "profile": "내 프로필",
       "security": "로그인 & 보안",
       "appearance": "화면 설정",
+      "subscription": "구독",
+      "system": "시스템 정보",
       "whatsapp": "WhatsApp",
       "templates": "템플릿",
+      "quick-replies": "빠른 답장",
       "fields": "필드 & 태그",
       "deals": "딜 & 통화",
       "members": "팀원",
@@ -1508,6 +1603,36 @@
     "groups": {
       "account": "계정",
       "workspace": "워크스페이스"
+    },
+    "subscription": {
+      "title": "구독",
+      "description": "{appName}의 현재 플랜, 결제 주기, 라이선스 상태입니다. 업그레이드와 갱신은 현재 UI만 제공됩니다.",
+      "currentPlan": "현재 플랜",
+      "perMonth": "/ 월",
+      "licenseActive": "라이선스 활성",
+      "installed": "설치일",
+      "renewal": "갱신일",
+      "remaining": "남은 일수",
+      "daysRemaining": "{count}일 남음",
+      "ofCycle": "30일 주기 중",
+      "upgrade": "업그레이드",
+      "renew": "갱신",
+      "upgradeToast": "업그레이드는 곧 제공됩니다 — 결제 연동은 아직 없습니다.",
+      "renewToast": "갱신은 곧 제공됩니다 — 결제 연동은 아직 없습니다."
+    },
+    "system": {
+      "title": "시스템 정보",
+      "description": "이 설치의 런타임 및 환경 정보입니다. 지원 및 진단에 유용합니다.",
+      "currentVersion": "현재 버전",
+      "nodeVersion": "Node 버전",
+      "runtime": "런타임",
+      "environment": "환경",
+      "database": "데이터베이스",
+      "storage": "스토리지",
+      "timezone": "시간대",
+      "locale": "로케일",
+      "appName": "애플리케이션",
+      "note": "Node 버전은 호스트 런타임(또는 NEXT_PUBLIC_NODE_VERSION)에서 읽습니다. 데이터베이스와 스토리지 라벨은 애플리케이션 설정에서 가져옵니다."
     },
     "profile": {
       "title": "내 프로필",
@@ -1627,7 +1752,7 @@
     },
     "aiConfig": {
       "title": "에이전트 설정",
-      "description": "직접 발급받은 OpenAI 또는 Anthropic 키를 사용하세요. wacrm은 회원님의 키로 공급자에 직접 요청하므로 좌석당 AI 비용이 없고 데이터도 온전히 회원님의 것입니다. 인박스의 AI 답장 초안, 자동 응답 봇, 플레이그라운드에 사용됩니다.",
+      "description": "직접 발급받은 OpenAI 또는 Anthropic 키를 사용하세요. Oakscroft CRM은 회원님의 키로 공급자에 직접 요청하므로 좌석당 AI 비용이 없고 데이터도 온전히 회원님의 것입니다. 인박스의 AI 답장 초안, 자동 응답 봇, 플레이그라운드에 사용됩니다.",
       "adminOnlyConfig": "관리자와 소유자만 AI 설정을 변경할 수 있습니다.",
       "loadFailed": "AI 설정을 불러오지 못했습니다",
       "providerAndKey": "공급자 & 키",

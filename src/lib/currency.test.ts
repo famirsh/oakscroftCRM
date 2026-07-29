@@ -14,8 +14,9 @@ describe("formatCurrency", () => {
     expect(out).not.toContain(".00");
   });
 
-  it("defaults to USD when no currency is given", () => {
+  it("defaults to INR when no currency is given", () => {
     expect(formatCurrency(10)).toBe(formatCurrency(10, DEFAULT_CURRENCY));
+    expect(DEFAULT_CURRENCY).toBe("INR");
   });
 
   it("treats an empty-string currency as the default", () => {

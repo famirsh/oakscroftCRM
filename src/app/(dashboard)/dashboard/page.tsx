@@ -7,7 +7,7 @@ import { formatCurrency } from '@/lib/currency'
 import {
   MessageSquare,
   UserPlus,
-  DollarSign,
+  IndianRupee,
   Send,
 } from 'lucide-react'
 
@@ -33,6 +33,8 @@ import { ConversationsChart } from '@/components/dashboard/conversations-chart'
 import { PipelineDonut } from '@/components/dashboard/pipeline-donut'
 import { ResponseTimeChart } from '@/components/dashboard/response-time-chart'
 import { ActivityFeed } from '@/components/dashboard/activity-feed'
+import { SubscriptionCard } from '@/components/dashboard/subscription-card'
+import { AboutCard } from '@/components/dashboard/about-card'
 
 import { useTranslations } from 'next-intl'
 
@@ -40,7 +42,7 @@ type RangeDays = 7 | 30 | 90
 
 export default function DashboardPage() {
   const t = useTranslations('Dashboard.page')
-  const { defaultCurrency } = useAuth()
+  const { defaultCurrency, profile } = useAuth()
   const [metrics, setMetrics] = useState<MetricsBundle | null>(null)
   const [metricsLoading, setMetricsLoading] = useState(true)
 
@@ -63,6 +65,11 @@ export default function DashboardPage() {
 
   const [activity, setActivity] = useState<ActivityItem[] | null>(null)
   const [activityLoading, setActivityLoading] = useState(true)
+
+  const firstName =
+    profile?.full_name?.trim().split(/\s+/)[0] ||
+    profile?.email?.split('@')[0] ||
+    t('defaultName')
 
   const loadAll = useCallback(() => {
     const db = createClient()
@@ -122,17 +129,24 @@ export default function DashboardPage() {
   )
 
   return (
-    <div className="space-y-5">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {t('description')}
-        </p>
+    <div className="mx-auto max-w-[1400px] space-y-6 sm:space-y-7">
+      {/* Page header — single large heading + welcome (no duplicate title) */}
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-[2rem]">
+            {t('title')}
+          </h1>
+          <p className="mt-1.5 text-base font-medium text-foreground/90">
+            {t('welcome', { name: firstName })}
+          </p>
+          <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">
+            {t('welcomeSub')}
+          </p>
+        </div>
       </div>
 
       {/* Metric cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {metricsLoading || !metrics ? (
           Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)
         ) : (
@@ -144,8 +158,8 @@ export default function DashboardPage() {
               delta={{
                 sign: metrics.activeConversations.previous,
                 label: deltaLabel(
-                  metrics.activeConversations.previous, 
-                  t('newTodayVsYesterday'), 
+                  metrics.activeConversations.previous,
+                  t('newTodayVsYesterday'),
                   t('noChange', { suffix: t('newTodayVsYesterday') })
                 ),
               }}
@@ -167,7 +181,7 @@ export default function DashboardPage() {
             <MetricCard
               title={t('openDealsValue')}
               value={formatCurrency(metrics.openDealsValue, defaultCurrency)}
-              icon={DollarSign}
+              icon={IndianRupee}
               subtitle={t('openDeals', { count: metrics.openDealsCount })}
             />
             <MetricCard
@@ -186,6 +200,12 @@ export default function DashboardPage() {
             />
           </>
         )}
+      </div>
+
+      {/* Plan + About — premium side cards */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <SubscriptionCard />
+        <AboutCard />
       </div>
 
       {/* Quick actions */}

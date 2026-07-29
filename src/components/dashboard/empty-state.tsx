@@ -23,19 +23,33 @@ export function EmptyState({
 }) {
   const t = useTranslations('Dashboard.emptyState')
   const defaultTitle = t('title')
-  
+
   return (
     <div
       className={cn(
-        'flex h-full min-h-40 flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-card/40 px-4 py-6 text-center',
+        'relative flex h-full min-h-44 flex-col items-center justify-center gap-3 overflow-hidden rounded-xl border border-dashed border-border/80 bg-gradient-to-b from-muted/30 to-transparent px-6 py-8 text-center',
         className,
       )}
     >
-      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
-        <Icon className="h-5 w-5" />
+      {/* Soft radial glow behind the icon */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,var(--primary-soft),transparent_65%)] opacity-60"
+      />
+      <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-card text-muted-foreground shadow-sm ring-1 ring-border">
+        <div className="absolute inset-0 rounded-2xl bg-primary/5" />
+        <Icon className="relative h-5 w-5 text-primary/80" />
       </div>
-      <p className="text-sm font-medium text-muted-foreground">{title || defaultTitle}</p>
-      {hint && <p className="max-w-xs text-xs text-muted-foreground">{hint}</p>}
+      <div className="relative space-y-1">
+        <p className="text-sm font-semibold tracking-tight text-foreground">
+          {title || defaultTitle}
+        </p>
+        {hint && (
+          <p className="mx-auto max-w-[18rem] text-xs leading-relaxed text-muted-foreground">
+            {hint}
+          </p>
+        )}
+      </div>
     </div>
   )
 }

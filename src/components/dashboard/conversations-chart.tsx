@@ -49,11 +49,11 @@ export function ConversationsChart({ series, loading, range, onRangeChange }: Co
   }, [data])
 
   return (
-    <section className="flex h-full flex-col rounded-xl border border-border bg-card">
-      <header className="flex items-center justify-between border-b border-border px-5 py-4">
+    <section className="flex h-full flex-col rounded-2xl border border-border bg-card shadow-sm transition-shadow duration-200 hover:shadow-md hover:shadow-black/5">
+      <header className="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
         <div>
-          <h2 className="text-sm font-semibold text-foreground">{t('title')}</h2>
-          <p className="mt-0.5 text-xs text-muted-foreground">{t('description')}</p>
+          <h2 className="text-sm font-semibold tracking-tight text-foreground">{t('title')}</h2>
+          <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{t('description')}</p>
         </div>
         <div className="flex items-center gap-1 rounded-lg bg-muted/60 p-1">
           {[7, 30, 90].map((r) => (
@@ -62,9 +62,9 @@ export function ConversationsChart({ series, loading, range, onRangeChange }: Co
               type="button"
               onClick={() => onRangeChange(r as RangeDays)}
               className={cn(
-                'rounded-md px-2.5 py-1 text-xs font-medium transition-colors',
+                'rounded-md px-2.5 py-1 text-xs font-medium transition-all duration-150',
                 range === r
-                  ? 'bg-secondary text-secondary-foreground'
+                  ? 'bg-secondary text-secondary-foreground shadow-sm'
                   : 'text-muted-foreground hover:text-foreground',
               )}
             >
@@ -82,6 +82,7 @@ export function ConversationsChart({ series, loading, range, onRangeChange }: Co
             icon={MessageSquare}
             title={t('noActivity')}
             hint={t('noActivityHint')}
+            className="min-h-[240px]"
           />
         ) : (
           <LineSvg data={data} maxY={maxY} ticks={niceTicks} t={t} />
