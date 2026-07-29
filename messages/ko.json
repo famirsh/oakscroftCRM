@@ -96,37 +96,6 @@
     "subscription": "구독",
     "systemInfo": "시스템 정보"
   },
-  "License": {
-    "status": {
-      "active": "활성 라이선스",
-      "trial": "체험 라이선스",
-      "suspended": "정지된 라이선스",
-      "expired": "만료된 라이선스"
-    }
-  },
-  "PlanWidget": {
-    "currentPlan": "현재 플랜",
-    "perMonth": "/ 월",
-    "installed": "설치일",
-    "renewal": "갱신일",
-    "remaining": "남은 일수",
-    "billingCycle": "결제 주기",
-    "cycleNumber": "주기 {number} · {days}일",
-    "daysRemaining": "{count}일 남음",
-    "ofCycle": "{days}일 주기 중",
-    "manage": "플랜 관리",
-    "upgrade": "업그레이드",
-    "renew": "갱신",
-    "upgradeToast": "업그레이드는 곧 제공됩니다 — 결제 연동은 아직 없습니다.",
-    "renewToast": "갱신은 곧 제공됩니다 — 결제 연동은 아직 없습니다."
-  },
-  "ExpiryBanner": {
-    "expiresIn": "{plan} 플랜이 {count}일 후 만료됩니다.",
-    "expired": "{plan} 플랜이 만료되었습니다.",
-    "suspended": "{plan} 라이선스가 정지되었습니다.",
-    "renewNow": "지금 갱신하기",
-    "dismiss": "닫기"
-  },
   "Dashboard": {
     "page": {
       "title": "대시보드",

@@ -96,37 +96,6 @@
     "subscription": "Subscription",
     "systemInfo": "System information"
   },
-  "License": {
-    "status": {
-      "active": "Active License",
-      "trial": "Trial License",
-      "suspended": "Suspended License",
-      "expired": "Expired License"
-    }
-  },
-  "PlanWidget": {
-    "currentPlan": "Current Plan",
-    "perMonth": "/ month",
-    "installed": "Installed",
-    "renewal": "Renewal",
-    "remaining": "Remaining Days",
-    "billingCycle": "Billing Cycle",
-    "cycleNumber": "Cycle {number} · {days} days",
-    "daysRemaining": "{count} {count, plural, =1 {Day} other {Days}} Remaining",
-    "ofCycle": "of {days}-day cycle",
-    "manage": "Manage plan",
-    "upgrade": "Upgrade",
-    "renew": "Renew",
-    "upgradeToast": "Upgrade is coming soon — no payment integration yet.",
-    "renewToast": "Renew is coming soon — no payment integration yet."
-  },
-  "ExpiryBanner": {
-    "expiresIn": "Your {plan} plan expires in {count} {count, plural, =1 {day} other {days}}.",
-    "expired": "Your {plan} plan has expired.",
-    "suspended": "Your {plan} license is suspended.",
-    "renewNow": "Renew now.",
-    "dismiss": "Dismiss"
-  },
   "Dashboard": {
     "page": {
       "title": "Dashboard",
