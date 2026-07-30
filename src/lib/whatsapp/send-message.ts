@@ -44,6 +44,11 @@ import {
 } from '@/lib/whatsapp/phone-utils';
 import type { MessageTemplate } from '@/types';
 import { isMessageTemplate } from '@/lib/whatsapp/template-row-guard';
+import {
+  TemplateSendValidationError,
+  type SendTimeParams,
+} from '@/lib/whatsapp/template-send-builder';
+import { maybePersistHeaderMediaAfterSend } from '@/lib/whatsapp/template-header-media';
 
 export const MEDIA_KINDS = ['image', 'video', 'document', 'audio'] as const;
 export const VALID_MESSAGE_TYPES = [
@@ -80,7 +85,7 @@ export interface SendMessageParams {
   /** Legacy positional body params (only used if messageParams.body unset). */
   templateParams?: string[];
   /** Structured template params (header/body/buttons). */
-  templateMessageParams?: unknown;
+  templateMessageParams?: SendTimeParams | unknown;
   /** Structured payload for `messageType === 'interactive'`. */
   interactivePayload?: InteractiveMessagePayload | null;
   replyToMessageId?: string | null;
@@ -331,18 +336,29 @@ export async function sendMessageToConversation(
 
   const attempt = async (phone: string): Promise<string> => {
     if (messageType === 'template') {
-      const result = await sendTemplateMessage({
-        phoneNumberId: config.phone_number_id,
-        accessToken,
-        to: phone,
-        templateName: templateName!,
-        language: templateLanguage || 'en_US',
-        template: templateRow ?? undefined,
-        messageParams: templateMessageParams ?? undefined,
-        params: templateParams || [],
-        contextMessageId,
-      });
-      return result.messageId;
+      try {
+        const result = await sendTemplateMessage({
+          phoneNumberId: config.phone_number_id,
+          accessToken,
+          to: phone,
+          templateName: templateName!,
+          language: templateLanguage || 'en_US',
+          template: templateRow ?? undefined,
+          messageParams:
+            (templateMessageParams as SendTimeParams | undefined) ?? undefined,
+          params: templateParams || [],
+          contextMessageId,
+        });
+        return result.messageId;
+      } catch (err) {
+        // Incomplete components (missing header media / body vars) are
+        // client errors — surface the builder message as a 400 without
+        // the "Meta API error:" prefix used for real Graph failures.
+        if (err instanceof TemplateSendValidationError) {
+          throw new SendMessageError('bad_request', err.message, 400);
+        }
+        throw err;
+      }
     }
     if (isMediaKind) {
       const result = await sendMediaMessage({
@@ -424,6 +440,12 @@ export async function sendMessageToConversation(
 
     if (lastError) throw lastError;
   } catch (err) {
+    // Already-classified failures (validation, auth, …) keep their code
+    // and status — only raw Meta/network errors get the meta_error wrap.
+    if (err instanceof SendMessageError) throw err;
+    if (err instanceof TemplateSendValidationError) {
+      throw new SendMessageError('bad_request', err.message, 400);
+    }
     const message =
       err instanceof Error ? err.message : 'Unknown Meta API error';
     console.error('[send-message] Meta send failed for all variants:', message);
@@ -438,6 +460,19 @@ export async function sendMessageToConversation(
       .from('contacts')
       .update({ phone: workingPhone })
       .eq('id', contact.id);
+  }
+
+  // First successful media-header send with a supplied URL: store it as
+  // the permanent default so the next send auto-fills and the agent is
+  // not prompted again. Never overwrites an existing header_media_url.
+  if (messageType === 'template' && templateRow) {
+    const params = templateMessageParams as SendTimeParams | undefined;
+    await maybePersistHeaderMediaAfterSend({
+      accountId,
+      template: templateRow,
+      headerMediaUrl:
+        params?.headerMediaUrl ?? templateRow.header_media_url ?? null,
+    });
   }
 
   // Persist the sent message. Field names MUST match the messages

@@ -15,6 +15,8 @@ import {
   rateLimitResponse,
   RATE_LIMITS,
 } from '@/lib/rate-limit'
+import { maybePersistHeaderMediaAfterSend } from '@/lib/whatsapp/template-header-media'
+import type { MessageTemplate } from '@/types'
 
 interface BroadcastResult {
   phone: string
@@ -173,7 +175,10 @@ export async function POST(request: Request) {
         { status: 500 },
       )
     }
-    const templateRow = rawTemplateRow ?? null
+    const templateRow = (rawTemplateRow as MessageTemplate | null) ?? null
+    // Persist the first successful media URL once per request so later
+    // recipients (and future broadcasts) reuse the stored default.
+    let headerMediaPersisted = false
 
     const results: BroadcastResult[] = []
     let sentCount = 0
@@ -232,6 +237,18 @@ export async function POST(request: Request) {
           whatsapp_message_id: sentMessageId,
         })
         sentCount++
+        if (!headerMediaPersisted && templateRow) {
+          const mediaUrl =
+            recipient.messageParams?.headerMediaUrl ??
+            templateRow.header_media_url ??
+            null
+          await maybePersistHeaderMediaAfterSend({
+            accountId,
+            template: templateRow,
+            headerMediaUrl: mediaUrl,
+          })
+          headerMediaPersisted = true
+        }
       } else {
         console.error(
           `Failed to send broadcast to ${recipient.phone}:`,

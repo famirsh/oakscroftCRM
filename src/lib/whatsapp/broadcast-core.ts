@@ -29,6 +29,7 @@ import {
 import { isMessageTemplate } from '@/lib/whatsapp/template-row-guard';
 import type { MessageTemplate } from '@/types';
 import { findOrCreateContact } from '@/lib/api/v1/contacts';
+import { maybePersistHeaderMediaAfterSend } from '@/lib/whatsapp/template-header-media';
 
 /** Thrown by createBroadcast on a caller-visible failure; route maps it. */
 export class BroadcastError extends Error {
@@ -64,6 +65,7 @@ interface PlannedRecipient {
 
 export interface BroadcastPlan {
   broadcastId: string;
+  accountId: string;
   templateName: string;
   templateLanguage: string;
   phoneNumberId: string;
@@ -236,6 +238,7 @@ export async function createBroadcast(
 
   return {
     broadcastId: broadcast.id,
+    accountId,
     templateName,
     templateLanguage,
     phoneNumberId: config.phone_number_id,
@@ -264,6 +267,7 @@ export async function deliverBroadcast(
   plan: BroadcastPlan
 ): Promise<void> {
   let sentCount = 0;
+  let headerMediaPersisted = false;
 
   for (const recipient of plan.planned) {
     const variants = phoneVariants(recipient.phone);
@@ -303,6 +307,17 @@ export async function deliverBroadcast(
           error_message: null,
         })
         .eq('id', recipient.recipientRowId);
+
+      // If the template row already had a header_media_url that made
+      // this send succeed, ensure it stays permanently (no-op when set).
+      if (!headerMediaPersisted && plan.templateRow) {
+        await maybePersistHeaderMediaAfterSend({
+          accountId: plan.accountId,
+          template: plan.templateRow,
+          headerMediaUrl: plan.templateRow.header_media_url ?? null,
+        });
+        headerMediaPersisted = true;
+      }
     } else {
       await db
         .from('broadcast_recipients')

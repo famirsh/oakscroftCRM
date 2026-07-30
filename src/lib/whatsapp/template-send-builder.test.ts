@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { buildSendComponents } from './template-send-builder';
+import {
+  buildSendComponents,
+  TemplateSendValidationError,
+} from './template-send-builder';
 import type { MessageTemplate } from '@/types';
 
 function row(overrides: Partial<MessageTemplate> = {}): MessageTemplate {
@@ -146,7 +149,28 @@ describe('buildSendComponents — header', () => {
   it('throws on media header with no link OR id available', () => {
     expect(() =>
       buildSendComponents(row({ header_type: 'image' })),
-    ).toThrow(/requires a media link or id/);
+    ).toThrow(/This template requires an Image Header/);
+  });
+
+  it('throws a type-specific message for video headers without media', () => {
+    expect(() =>
+      buildSendComponents(row({ header_type: 'video' })),
+    ).toThrow(/This template requires a Video Header/);
+  });
+
+  it('throws a type-specific message for document headers without media', () => {
+    expect(() =>
+      buildSendComponents(row({ header_type: 'document' })),
+    ).toThrow(/This template requires a Document Header/);
+  });
+
+  it('throws TemplateSendValidationError (not a plain Error) for missing media', () => {
+    try {
+      buildSendComponents(row({ header_type: 'image' }));
+      expect.unreachable('should have thrown');
+    } catch (err) {
+      expect(err).toBeInstanceOf(TemplateSendValidationError);
+    }
   });
 });
 

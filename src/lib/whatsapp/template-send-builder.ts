@@ -33,6 +33,19 @@
 import type { MessageTemplate, TemplateButton } from '@/types';
 import { extractVariableIndices } from './template-validators';
 
+/**
+ * Thrown when a send-time template component is incomplete (missing
+ * header media, body var, button param, …). Distinct from a Meta HTTP
+ * failure so the send pipeline can return 400 with the message as-is
+ * instead of wrapping it as "Meta API error: …".
+ */
+export class TemplateSendValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'TemplateSendValidationError';
+  }
+}
+
 export interface SendTimeParams {
   /** Values for body {{1}}, {{2}}, … indexed by variable position. */
   body?: string[];
@@ -49,6 +62,24 @@ export interface SendTimeParams {
    * override at send time.
    */
   buttonParams?: Record<number, string>;
+}
+
+const MEDIA_HEADER_LABEL: Record<'image' | 'video' | 'document', string> = {
+  image: 'Image',
+  video: 'Video',
+  document: 'Document',
+};
+
+function missingMediaHeaderMessage(
+  headerType: 'image' | 'video' | 'document',
+): string {
+  const label = MEDIA_HEADER_LABEL[headerType];
+  // "Image" takes "an"; "Video"/"Document" take "a".
+  const article = headerType === 'image' ? 'an' : 'a';
+  return (
+    `This template requires ${article} ${label} Header.\n` +
+    `Please upload or select ${article} ${label.toLowerCase()} before sending.`
+  );
 }
 
 export type MetaSendComponent =
@@ -84,7 +115,7 @@ function buildHeaderComponent(
     if (varCount === 0) return null;
     const value = params.headerText;
     if (!value || !value.trim()) {
-      throw new Error(
+      throw new TemplateSendValidationError(
         'Header text variable {{1}} requires a value — pass headerText.',
       );
     }
@@ -106,11 +137,11 @@ function buildHeaderComponent(
   const link = params.headerMediaUrl ?? template.header_media_url;
   const id = params.headerMediaId;
   if (!link && !id) {
-    throw new Error(
-      `${headerType} header requires a media link or id at send time — set header_media_url on the template or pass headerMediaUrl/headerMediaId.`,
+    throw new TemplateSendValidationError(
+      missingMediaHeaderMessage(headerType),
     );
   }
-  const mediaPayload: { link?: string; id?: string } = id ? { id } : { link };
+  const mediaPayload: { link?: string; id?: string } = id ? { id } : { link: link! };
   return {
     type: 'header',
     parameters: [
@@ -131,7 +162,7 @@ function buildBodyComponent(
   const body = params.body ?? [];
   if (varCount === 0 && body.length === 0) return null;
   if (body.length < varCount) {
-    throw new Error(
+    throw new TemplateSendValidationError(
       `Body has ${varCount} variable(s) but only ${body.length} value(s) were supplied.`,
     );
   }
@@ -174,7 +205,7 @@ function buildButtonComponent(
       // Each URL button is its own component with sub_type=url and
       // the button's index in the template's buttons array.
       if (!override || !override.trim()) {
-        throw new Error(
+        throw new TemplateSendValidationError(
           `URL button #${index + 1} uses {{1}} — requires a buttonParams[${index}] value.`,
         );
       }

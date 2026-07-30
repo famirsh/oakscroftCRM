@@ -140,11 +140,25 @@ curl -X POST https://your-crm.example.com/api/v1/messages \
   "template": {
     "name": "order_update",
     "language": "en_US",
-    "params": ["A123"]        // positional body vars, or a structured object
+    // Positional body vars, OR a structured object for full header support:
+    // {
+    //   "body": ["A123"],
+    //   "headerText": "optional text-header {{1}}",
+    //   "headerMediaUrl": "https://…",   // required for IMAGE/VIDEO/DOCUMENT headers
+    //   "headerMediaId": "…",            // alternative: Meta media id from /media upload
+    //   "buttonParams": { "0": "url-suffix" }
+    // }
+    "params": ["A123"]
   },
   "reply_to_message_id": "<uuid>"   // optional; must be in the same conversation
 }
 ```
+
+Templates with an IMAGE / VIDEO / DOCUMENT header must include
+`headerMediaUrl` (public HTTPS) or `headerMediaId` in the structured
+`params` object (or the template row must already store
+`header_media_url`). Missing media returns 400 with a clear message
+rather than a Meta Graph rejection.
 
 Response (201):
 

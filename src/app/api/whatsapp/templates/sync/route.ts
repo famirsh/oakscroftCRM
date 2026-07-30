@@ -232,6 +232,10 @@ export async function POST() {
           ? headerFormat.toLowerCase()
           : null
 
+      // NOTE: `header_media_url` is intentionally omitted. Meta only
+      // returns a creation-time `header_handle` (not a reusable public
+      // URL). The CRM stores the permanent send-time media URL itself;
+      // sync must never clobber a valid stored value with null.
       const row = {
         // Account tenancy + user audit, same split as the submit
         // route. account_id is NOT NULL on message_templates
@@ -256,7 +260,7 @@ export async function POST() {
 
       const { data: existing, error: lookupErr } = await supabase
         .from('message_templates')
-        .select('id')
+        .select('id, header_media_url')
         .eq('account_id', accountId)
         .eq('name', t.name)
         .eq('language', t.language)
@@ -272,6 +276,8 @@ export async function POST() {
       }
 
       if (existing?.id) {
+        // Explicitly do not pass header_media_url — preserves any
+        // permanent URL the CRM stored after first upload/send.
         const { error: updErr } = await supabase
           .from('message_templates')
           .update(row)

@@ -458,12 +458,23 @@ export function TemplateManager() {
   const headerNeedsMedia =
     form.header_format !== 'none' && form.header_format !== 'text';
 
-  async function handleHeaderImageFile(file: File) {
-    if (!['image/jpeg', 'image/png'].includes(file.type)) {
+  const HEADER_FILE_ACCEPT: Record<'image' | 'video' | 'document', string> = {
+    image: 'image/jpeg,image/png,image/webp',
+    video: 'video/mp4,video/3gpp',
+    document:
+      'application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/plain',
+  };
+
+  async function handleHeaderMediaFile(file: File) {
+    const kind = form.header_format;
+    if (kind !== 'image' && kind !== 'video' && kind !== 'document') return;
+
+    if (kind === 'image' && !['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
       toast.error(t('toastInvalidImage'));
       return;
     }
-    if (file.size > MEDIA_MAX_BYTES_BY_KIND.image) {
+    const maxBytes = MEDIA_MAX_BYTES_BY_KIND[kind];
+    if (file.size > maxBytes) {
       toast.error(
         t('toastImageTooLarge', { size: (file.size / 1024 / 1024).toFixed(1) }),
       );
@@ -473,7 +484,71 @@ export function TemplateManager() {
     try {
       const { publicUrl } = await uploadAccountMedia('chat-media', file);
       setForm((f) => ({ ...f, header_media_url: publicUrl }));
+
+      // When editing an existing template, persist the new URL as the
+      // permanent send-time default immediately (does not re-submit to
+      // Meta). Creation still relies on the form submit path.
+      if (editingId) {
+        try {
+          const res = await fetch(
+            `/api/whatsapp/templates/${editingId}/header-media`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                header_media_url: publicUrl,
+                force: true,
+              }),
+            },
+          );
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            console.warn(
+              'Failed to persist default header media:',
+              data?.error || res.status,
+            );
+          }
+        } catch (err) {
+          console.warn('Failed to persist default header media:', err);
+        }
+      }
+
       toast.success(t('toastUploadSuccess'));
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : t('toastUploadFailed'));
+    } finally {
+      setUploadingHeader(false);
+    }
+  }
+
+  /**
+   * Save the current header_media_url as the permanent send default
+   * without re-submitting the template to Meta. Useful when the admin
+   * pastes a new public URL for an already-approved media-header template.
+   */
+  async function handleSaveDefaultHeaderMedia() {
+    if (!editingId) return;
+    const url = form.header_media_url.trim();
+    if (!url) {
+      toast.error(t('toastMediaUrlRequired'));
+      return;
+    }
+    setUploadingHeader(true);
+    try {
+      const res = await fetch(
+        `/api/whatsapp/templates/${editingId}/header-media`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ header_media_url: url, force: true }),
+        },
+      );
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data?.error || `HTTP ${res.status}`);
+      }
+      toast.success(t('toastDefaultMediaSaved'));
+      if (user) await fetchTemplates(user.id);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t('toastUploadFailed'));
     } finally {
@@ -801,16 +876,18 @@ export function TemplateManager() {
 
               {headerNeedsMedia && (
                 <div className="space-y-2 mt-2">
-                  {form.header_format === 'image' && (
-                    <div className="flex items-center gap-2">
+                  {(form.header_format === 'image' ||
+                    form.header_format === 'video' ||
+                    form.header_format === 'document') && (
+                    <div className="flex flex-wrap items-center gap-2">
                       <input
                         ref={headerFileRef}
                         type="file"
-                        accept="image/jpeg,image/png"
+                        accept={HEADER_FILE_ACCEPT[form.header_format]}
                         className="hidden"
                         onChange={(e) => {
                           const f = e.target.files?.[0];
-                          if (f) void handleHeaderImageFile(f);
+                          if (f) void handleHeaderMediaFile(f);
                           e.target.value = '';
                         }}
                       />
@@ -826,8 +903,24 @@ export function TemplateManager() {
                         ) : (
                           <Upload className="h-3.5 w-3.5" />
                         )}
-                        {t('uploadImage')}
+                        {form.header_format === 'image'
+                          ? t('uploadImage')
+                          : form.header_format === 'video'
+                            ? t('uploadVideo')
+                            : t('uploadDocument')}
                       </Button>
+                      {editingId && form.header_media_url.trim() && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={uploadingHeader}
+                          onClick={() => void handleSaveDefaultHeaderMedia()}
+                          title={t('saveDefaultMediaTitle')}
+                        >
+                          {t('saveDefaultMedia')}
+                        </Button>
+                      )}
                       <span className="text-[11px] text-muted-foreground">
                         {t('uploadHint')}
                       </span>

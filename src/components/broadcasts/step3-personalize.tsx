@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Contact, CustomField, MessageTemplate } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -12,8 +12,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowLeft, ArrowRight, Eye, ImageIcon, Loader2 } from 'lucide-react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  Eye,
+  FileText,
+  ImageIcon,
+  Loader2,
+  Upload,
+  Video,
+} from 'lucide-react';
+import {
+  MEDIA_MAX_BYTES_BY_KIND,
+  uploadAccountMedia,
+} from '@/lib/storage/upload-media';
 import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 
 type VariableType = 'static' | 'field' | 'custom_field';
 
@@ -39,6 +53,13 @@ type MediaHeaderType = (typeof MEDIA_HEADER_TYPES)[number];
 function isMediaHeaderType(value: unknown): value is MediaHeaderType {
   return MEDIA_HEADER_TYPES.includes(value as MediaHeaderType);
 }
+
+const PICKER_ACCEPT: Record<MediaHeaderType, string> = {
+  image: 'image/png,image/jpeg,image/webp',
+  video: 'video/mp4,video/3gpp',
+  document:
+    'application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/plain',
+};
 
 function isValidHttpUrl(value: string): boolean {
   try {
@@ -84,6 +105,8 @@ export function Step3Personalize({
     Map<string, string>
   >(new Map());
   const [loadingPreview, setLoadingPreview] = useState(true);
+  const [uploadingHeader, setUploadingHeader] = useState(false);
+  const headerFileRef = useRef<HTMLInputElement>(null);
 
   // Load user's custom fields + a representative contact for the
   // live preview. Fall back to sample data if no contacts exist yet.
@@ -233,6 +256,60 @@ export function Step3Personalize({
     ? firstContact.name || firstContact.phone
     : t('personalize.previewSample');
 
+  async function persistDefaultHeaderMedia(url: string) {
+    const existing = template.header_media_url?.trim() ?? '';
+    if (existing || !url || !isValidHttpUrl(url)) return;
+    try {
+      await fetch(`/api/whatsapp/templates/${template.id}/header-media`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ header_media_url: url }),
+      });
+      template.header_media_url = url;
+    } catch (err) {
+      console.warn('Failed to persist template header media:', err);
+    }
+  }
+
+  async function handleHeaderFile(file: File, kind: MediaHeaderType) {
+    const maxBytes = MEDIA_MAX_BYTES_BY_KIND[kind];
+    if (file.size > maxBytes) {
+      toast.error(
+        t('personalize.headerMediaTooLarge', {
+          size: (file.size / 1024 / 1024).toFixed(1),
+          max: (maxBytes / 1024 / 1024).toFixed(0),
+        }),
+      );
+      return;
+    }
+    setUploadingHeader(true);
+    try {
+      const { publicUrl } = await uploadAccountMedia('chat-media', file);
+      onHeaderMediaUrlChange(publicUrl);
+      // First upload becomes the permanent default for this template.
+      await persistDefaultHeaderMedia(publicUrl);
+      toast.success(t('personalize.headerMediaUploaded'));
+    } catch (err) {
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : t('personalize.headerMediaUploadFailed'),
+      );
+    } finally {
+      setUploadingHeader(false);
+      if (headerFileRef.current) headerFileRef.current.value = '';
+    }
+  }
+
+  const mediaHeaderIcon =
+    mediaHeaderType === 'video' ? (
+      <Video className="h-4 w-4 text-primary" />
+    ) : mediaHeaderType === 'document' ? (
+      <FileText className="h-4 w-4 text-primary" />
+    ) : (
+      <ImageIcon className="h-4 w-4 text-primary" />
+    );
+
   return (
     <div className="space-y-6">
       <div>
@@ -245,25 +322,58 @@ export function Step3Personalize({
       {mediaHeaderType && (
         <div className="rounded-xl border border-border bg-card/50 p-4">
           <div className="mb-3 flex items-center gap-2">
-            <ImageIcon className="h-4 w-4 text-primary" />
-            <p className="text-sm font-medium text-foreground">{t('personalize.headerImage')}</p>
+            {mediaHeaderIcon}
+            <p className="text-sm font-medium text-foreground">
+              {t('personalize.headerMediaTitle', { type: mediaHeaderType })}
+            </p>
             <span className="inline-flex items-center rounded-md bg-primary/10 px-2 py-0.5 text-xs font-medium uppercase text-primary">
               {mediaHeaderType}
             </span>
           </div>
+          <p className="mb-3 text-xs text-muted-foreground">
+            {t('personalize.headerMediaRequired', { type: mediaHeaderType })}
+          </p>
+
+          <input
+            ref={headerFileRef}
+            type="file"
+            accept={PICKER_ACCEPT[mediaHeaderType]}
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) void handleHeaderFile(file, mediaHeaderType);
+            }}
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={uploadingHeader}
+            onClick={() => headerFileRef.current?.click()}
+            className="mb-3 border-border"
+          >
+            {uploadingHeader ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Upload className="h-4 w-4" />
+            )}
+            {uploadingHeader
+              ? t('personalize.headerMediaUploading')
+              : t('personalize.headerMediaUpload', { type: mediaHeaderType })}
+          </Button>
+
           <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
-            {t('personalize.imageUrl')}
+            {t('personalize.headerMediaUrlLabel')}
           </label>
           <Input
             type="url"
             value={headerMediaUrl}
             onChange={(e) => onHeaderMediaUrlChange(e.target.value)}
-            placeholder={t('personalize.imageUrlPlaceholder')}
+            placeholder={t('personalize.headerMediaUrlPlaceholder', {
+              type: mediaHeaderType,
+            })}
             className="border-border bg-muted text-foreground placeholder:text-muted-foreground"
           />
-          <p className="mt-1.5 text-xs text-muted-foreground">
-            {t('personalize.headerImageDesc')}
-          </p>
           {mediaHeaderType === 'image' &&
             headerMediaError === null &&
             headerMediaUrl.trim() && (
@@ -275,10 +385,12 @@ export function Step3Personalize({
               />
             )}
           {headerMediaError && (
-            <p className="mt-1.5 text-xs text-amber-300">
+            <p className="mt-1.5 whitespace-pre-line text-xs text-amber-300">
               {headerMediaError === 'missing'
-                ? 'A media URL is required to send this template.'
-                : 'Enter a valid http(s) URL.'}
+                ? t('personalize.headerMediaMissing', {
+                    type: mediaHeaderType,
+                  })
+                : t('personalize.headerMediaInvalidUrl')}
             </p>
           )}
         </div>
@@ -441,7 +553,11 @@ export function Step3Personalize({
         </Button>
         <Button
           onClick={onNext}
-          disabled={unmappedKeys.length > 0 || headerMediaError !== null}
+          disabled={
+            unmappedKeys.length > 0 ||
+            headerMediaError !== null ||
+            uploadingHeader
+          }
           className="bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
         >
           {t('next')}
